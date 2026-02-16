@@ -14,10 +14,10 @@
         <img id="skyTexture" src="https://cdn.aframe.io/a-painter/images/sky.jpg">
       </a-assets>
 
-      <a-plane src="#groundTexture" rotation="-90 0 0" height="100" width="100" roughness="0.9" shader="standard" material="repeat: 30 30"></a-plane>
+      <a-plane src="#groundTexture" rotation="-90 0 0" height="100" width="100" roughness="0.5" shader="standard" material="repeat: 100 100" ></a-plane>
       <a-light type="ambient" color="#74918c"></a-light>
       <a-light type="point" intensity="2.2" position="3 3 3"></a-light>
-      <a-sky height="2048" radius="30" src="#skyTexture" theta-length="90" width="2048" material="color: #000c12"></a-sky>
+      <a-sky height="2048" radius="30" src="#skyTexture" theta-length="90" width="2048" material="color: #fad4af"></a-sky>
       
       <a-entity camera look-controls wasd-controls position="0 1.6 0">
         <a-entity cursor="fuse: false; rayOrigin: mouse" raycaster="objects: .clickable"></a-entity>
