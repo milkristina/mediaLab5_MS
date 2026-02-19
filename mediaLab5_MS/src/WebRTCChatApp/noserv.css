@@ -1,0 +1,137 @@
+body {
+  margin: 0;
+  padding: 16px;
+  line-height: 1.6;
+  font-family: Arial, sans-serif;
+  color: #111;
+}
+
+body.create-page { background: #b04a78; }  
+body.join-page   { background: #3c78b8; }  
+
+h2 {
+  font-size: 20px;
+  margin: 0 0 10px 0;
+  padding: 0;
+  color: #111;
+}
+
+h3 {
+  font-size: 14px;
+  margin: 14px 0 6px 0;
+  padding: 0;
+  color: #111;
+}
+
+textarea {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 0 10px 0;
+  height: 70px;
+  font-size: 12px;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  border: 0;               
+  outline: none;
+  background: #ffffff;
+  border-radius: 6px;
+  padding: 10px;
+}
+
+button {
+  border: 0;               
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+body.create-page button { background: #f6dbe7; color: #5a1233; }
+body.join-page   button { background: #d9ecff; color: #0b2a4a; }
+
+button:hover { filter: brightness(0.98); }
+button:active { transform: translateY(1px); }
+
+body.create-page #start  { background: #ffd1e3; color:#5a1233; }
+body.join-page   #create { background: #cfe8ff; color:#0b2a4a; }
+
+#localVideo,
+#receivedImage {
+  display: block;
+  margin: 10px auto 0 auto;
+  width: min(92%, 720px);
+  max-height: 420px;
+  object-fit: cover;
+  border: 0;                    
+  border-radius: 10px;
+  background: #fff;
+}
+
+#create-page-fix {}
+#capture {
+  display: block;
+  margin: 10px auto 0 auto;   
+}
+
+#status {
+  float: right;
+  font-weight: normal;
+  opacity: 0.75;
+}
+
+#chat {
+  margin-top: 8px;
+}
+
+#chat-screen-wp {
+  position: relative;
+  height: 160px;
+  margin: 0;
+  padding: 10px;
+  overflow-y: auto;
+
+  border: 0;                    
+  background: #ffffff;        
+  border-radius: 10px;
+}
+
+#ct {
+  margin-top: 8px;
+  text-align: right;
+}
+
+#msg {
+  width: calc(100% - 80px);
+  max-width: 520px;
+  padding: 8px 10px;
+  border: 0;                    
+  outline: none;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+#send {
+  margin-left: 8px;
+}
+
+div.wrap  { clear: both; padding: 4px 0; }
+
+div.info  { position: absolute; right: 0; top: 0; padding: 6px 10px; }
+
+div.other {
+  float: left;
+  padding: 7px 10px;
+  border-radius: 10px;
+  background: #ffffff;        
+  color: #0b2a4a;
+}
+
+div.me {
+  float: right;
+  padding: 7px 10px;
+  border-radius: 10px;
+  background: #ffffff;      
+  color: #5a1233;
+}
+
+span.who { display:none; }

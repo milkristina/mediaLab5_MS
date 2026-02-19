@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<head>
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<title>Hello, AR Cube!</title>
+	<!-- include three.js library -->
+	<script src='js/three.js'></script>
+	<!-- include jsartookit -->
+	<script src="jsartoolkit5/artoolkit.min.js"></script>
+	<script src="jsartoolkit5/artoolkit.api.js"></script>
+	<!-- include threex.artoolkit -->
+	<script src="threex/threex-artoolkitsource.js"></script>
+	<script src="threex/threex-artoolkitcontext.js"></script>
+	<script src="threex/threex-arbasecontrols.js"></script>
+	<script src="threex/threex-armarkercontrols.js"></script>
+</head>
+
+<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
+
+<!-- 
+  Example created by Lee Stemkoski: https://github.com/stemkoski
+  Based on the AR.js library and examples created by Jerome Etienne: https://github.com/jeromeetienne/AR.js/
+-->
+
+<script>
+
+var scene, camera, renderer, clock, deltaTime, totalTime;
+
+var arToolkitSource, arToolkitContext;
+
+var markerRoot1, markerRoot2;
+
+var mesh1;
+
+initialize();
+animate();
+
+function initialize()
+{
+	scene = new THREE.Scene();
+
+	let ambientLight = new THREE.AmbientLight( 0xcccccc, 0.5 );
+	scene.add( ambientLight );
+	let dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    dirLight.position.set(2, 4, 1);
+    scene.add(dirLight);
+
+	camera = new THREE.Camera();
+	scene.add(camera);
+
+	renderer = new THREE.WebGLRenderer({
+		antialias : true,
+		alpha: true
+	});
+	renderer.setClearColor(new THREE.Color('lightgrey'), 0)
+	renderer.setSize( 640, 480 );
+	renderer.domElement.style.position = 'absolute'
+	renderer.domElement.style.top = '0px'
+	renderer.domElement.style.left = '0px'
+	document.body.appendChild( renderer.domElement );
+
+	clock = new THREE.Clock();
+	deltaTime = 0;
+	totalTime = 0;
+	
+	////////////////////////////////////////////////////////////
+	// setup arToolkitSource
+	////////////////////////////////////////////////////////////
+
+	arToolkitSource = new THREEx.ArToolkitSource({
+		sourceType : 'webcam',
+	});
+
+	function onResize()
+	{
+		arToolkitSource.onResize()	
+		arToolkitSource.copySizeTo(renderer.domElement)	
+		if ( arToolkitContext.arController !== null )
+		{
+			arToolkitSource.copySizeTo(arToolkitContext.arController.canvas)	
+		}	
+	}
+
+	arToolkitSource.init(function onReady(){
+		onResize()
+	});
+	
+	// handle resize event
+	window.addEventListener('resize', function(){
+		onResize()
+	});
+	
+	////////////////////////////////////////////////////////////
+	// setup arToolkitContext
+	////////////////////////////////////////////////////////////	
+
+	// create atToolkitContext
+	arToolkitContext = new THREEx.ArToolkitContext({
+		cameraParametersUrl: 'data/camera_para.dat',
+		detectionMode: 'mono'
+	});
+	
+	// copy projection matrix to camera when initialization complete
+	arToolkitContext.init( function onCompleted(){
+		camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
+	});
+
+	////////////////////////////////////////////////////////////
+	// setup markerRoots
+	////////////////////////////////////////////////////////////
+
+	// build markerControls
+	markerRoot1 = new THREE.Group();
+	scene.add(markerRoot1);
+	let markerControls1 = new THREEx.ArMarkerControls(arToolkitContext, markerRoot1, {
+		type: 'pattern', patternUrl: "data/hiro.patt",
+	})
+    // ===== Custom complex model (made by you) =====
+reactorParts = buildReactorModel();
+reactorParts.root.position.y = 0.0;
+reactorParts.root.scale.set(0.6, 0.6, 0.6);
+markerRoot1.add(reactorParts.root);
+
+// --- funkcija kuri sukuria kompleksinį modelį ---
+function buildReactorModel() {
+  const root = new THREE.Group();
+
+  const matMetal = new THREE.MeshStandardMaterial({ color: 0x9aa4ad, roughness: 0.35, metalness: 0.9 });
+  const matDark  = new THREE.MeshStandardMaterial({ color: 0x1b2633, roughness: 0.75, metalness: 0.35 });
+  const matGlow  = new THREE.MeshStandardMaterial({
+    color: 0x44ffd4,
+    roughness: 0.25,
+    metalness: 0.2,
+    emissive: 0x1affc8,
+    emissiveIntensity: 0.9
+  });
+  const matPink  = new THREE.MeshStandardMaterial({
+    color: 0xff7bd1,
+    roughness: 0.35,
+    metalness: 0.25,
+    emissive: 0xff2fb4,
+    emissiveIntensity: 0.25
+  });
+
+  // bazė
+  const base = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.4, 0.25, 48), matDark);
+  base.position.y = 0.125;
+  root.add(base);
+
+  // apvadas
+  const rim = new THREE.Mesh(new THREE.TorusGeometry(1.08, 0.06, 16, 64), matMetal);
+  rim.rotation.x = Math.PI / 2;
+  rim.position.y = 0.27;
+  root.add(rim);
+
+  // centrinė kolona
+  const column = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.30, 1.6, 32), matDark);
+  column.position.y = 0.9;
+  root.add(column);
+
+  // “core”
+  const core = new THREE.Mesh(new THREE.SphereGeometry(0.32, 32, 32), matGlow);
+  core.position.y = 1.35;
+  root.add(core);
+
+  // 3 žiedai (rotuos)
+  const ring1 = new THREE.Mesh(new THREE.TorusGeometry(0.55, 0.05, 16, 64), matMetal);
+  ring1.position.y = 1.15;
+  ring1.rotation.x = Math.PI / 2;
+  root.add(ring1);
+
+  const ring2 = new THREE.Mesh(new THREE.TorusGeometry(0.75, 0.04, 16, 64), matMetal);
+  ring2.position.y = 1.35;
+  ring2.rotation.y = Math.PI / 2;
+  root.add(ring2);
+
+  const ring3 = new THREE.Mesh(new THREE.TorusGeometry(0.92, 0.035, 16, 64), matPink);
+  ring3.position.y = 1.00;
+  ring3.rotation.z = Math.PI / 2;
+  root.add(ring3);
+
+  // kolonos aplink
+  const pillarGeo = new THREE.CylinderGeometry(0.06, 0.08, 1.15, 18);
+  for (let i = 0; i < 10; i++) {
+    const a = (i / 10) * Math.PI * 2;
+    const p = new THREE.Mesh(pillarGeo, matMetal);
+    p.position.set(Math.cos(a) * 0.92, 0.65, Math.sin(a) * 0.92);
+    root.add(p);
+
+    const cap = new THREE.Mesh(new THREE.SphereGeometry(0.09, 16, 16), matPink);
+    cap.position.set(p.position.x, 1.25, p.position.z);
+    root.add(cap);
+  }
+
+  return { root, core, ring1, ring2, ring3 };
+}
+
+	
+}
+
+
+function update()
+{
+	// update artoolkit on every frame
+	if ( arToolkitSource.ready !== false )
+		arToolkitContext.update( arToolkitSource.domElement );
+}
+
+
+function render()
+{
+	renderer.render( scene, camera );
+}
+
+
+function animate()
+{
+	requestAnimationFrame(animate);
+	deltaTime = clock.getDelta();
+	totalTime += deltaTime;
+	if (reactorParts) {
+    reactorParts.ring1.rotation.z += deltaTime * 1.2;
+    reactorParts.ring2.rotation.x += deltaTime * 0.9;
+    reactorParts.ring3.rotation.y += deltaTime * 1.5;
+
+    const pulse = 0.65 + 0.35 * Math.sin(totalTime * 3.0);
+    reactorParts.core.scale.setScalar(0.92 + pulse * 0.12);
+    reactorParts.core.material.emissiveIntensity = 0.6 + pulse * 1.0;
+}
+
+	update();
+	render();
+}
+
+</script>
+
+</body>
+</html>

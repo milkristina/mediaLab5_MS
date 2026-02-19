@@ -2,16 +2,20 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title> CREATE WebRTC channel </title>
+  <title> CREATE WebRTC Image & Chat Channel </title>
   <link href="noserv.css" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 </head>
-<body>
-<h2> CREATE WebRTC channel <span id="status"> init </span></h2>
+<body class="create-page">
+<h2> CREATE WebRTC Image & Chat Channel <span id="status"> </span></h2>
 <h3> 1.CREATE Offer's SDP </h3>
 <textarea id="creater-sdp"></textarea>
-<h3> 4.GET Participant's SDP <button id="start">start</button></h3>
+<h3> 4.GET Participant's SDP <button id="start">START</button></h3>
 <textarea id="joiner-sdp" placeholder="HERE COPY AND PASTE [3.Participant'S SDP]"></textarea>
+<h3> IMAGE STREAM </h3>
+<video id="localVideo" autoplay></video>
+<button id="capture">Capture & Send</button>
+<img id="receivedImage" />
 <h3> CHAT </h3>
 <div id="chat">
   <div id="chat-screen-wp">
@@ -20,59 +24,119 @@
   <div id="ct"><input id="msg" disabled><button id="send" disabled>send</button></div>
 </div>
 <script>
-//var server       = { urls: "stun:stun.l.google.com:19302" };
-var sdpConstraints = { optional: [{RtpDataChannels: true}]  };
-var pc = new RTCPeerConnection(null);
-var dc;
+  var sdpConstraints = { optional: [{ RtpDataChannels: true }] };
+  var pc = new RTCPeerConnection(null);
+  var dc;
+  
+  pc.oniceconnectionstatechange = function (e) {
+    var state = pc.iceConnectionState;
+    $('#status').html(state);
+    if (state == "connected") $("#msg, #send").attr("disabled", false);
+  };
+  
+  pc.onicecandidate = function (e) {
+    if (e.candidate) return;
+    $("#creater-sdp").val(JSON.stringify(pc.localDescription));
+  }
+  
+  function createOfferSDP() {
+    dc = pc.createDataChannel("chat");
+  
+    pc.createOffer().then(function (e) {
+      pc.setLocalDescription(e);
+    });
+  
+    dc.onopen = function () {
+      $("textarea").attr("disabled", true);
+      addMSG("CONNECTED!", "info");
+    };
+  
+    dc.onmessage = function (e) {
+      if (e.data.startsWith("data:image")) {
+        document.getElementById("receivedImage").src = e.data;
+      } else {
+        addMSG(e.data, "other");
+      }
+    };
+  
+    dc.onclose = function () {
+      console.warn("RTCDataChannel closed unexpectedly. Reconnecting...");
+      setTimeout(createOfferSDP, 2000);
+    };
+  
+    dc.onerror = function (err) {
+      console.error("RTCDataChannel error:", err);
+    };
+  }
+  
+  function start() {
+    var answerSDP = $('#joiner-sdp').val();
+    var answerDesc = new RTCSessionDescription(JSON.parse(answerSDP));
+    pc.setRemoteDescription(answerDesc);
+  }
+  
+  var addMSG = function (msg, who) {
+    var wrap = $("<div>").addClass("wrap").appendTo($("#chat-screen"));
+    var div = $("<div>").addClass(who).appendTo(wrap);
+    $("<span>").html(who).addClass("who").appendTo(div);
+    $("<span>").html(msg).addClass("msg").appendTo(div);
+    $("#chat-screen-wp").scrollTop($("#chat-screen").height());
+  }
+  
+  createOfferSDP();
+  
+  var sendMSG = function () {
+    var value = $("#msg").val();
+    if (value && dc && dc.readyState === "open") {
+      dc.send(value);
+      addMSG(value, "me");
+      $("#msg").val('');
+    } else {
+      console.warn("Message not sent. DataChannel not open.");
+    }
+  }
+  
+  $("#start").click(function () { start(); });
+  $("#msg").keypress(function (e) { if (e.which == 13) { sendMSG(); } });
+  $("#send").click(sendMSG);
 
-pc.oniceconnectionstatechange = function(e) {
-  var state = pc.iceConnectionState;
-  $('#status').html(state);
-  if (state == "connected") $("#msg, #send").attr("disabled", false);
-};
-pc.onicecandidate = function(e) {
-  if (e.candidate) return;
-  $("#creater-sdp").val(JSON.stringify(pc.localDescription));
-}
-
-function createOfferSDP() {
-  dc = pc.createDataChannel("chat");
-  pc.createOffer().then(function(e) {
-    pc.setLocalDescription(e)
+  navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+    document.getElementById("localVideo").srcObject = stream;
   });
-  dc.onopen = function(){$("textarea").attr("disabled",true);addMSG("CONNECTED!", "info")};
-  dc.onmessage = function(e) {
-    if (e.data) addMSG(e.data, "other");
-  }
-};
-
-function start() {
-  var answerSDP = $('#joiner-sdp').val()
-  var answerDesc = new RTCSessionDescription(JSON.parse(answerSDP));
-  pc.setRemoteDescription(answerDesc);
-}
-
-var addMSG = function(msg, who) {
-  var wrap = $("<div>").addClass("wrap").appendTo($("#chat-screen"));
-  var div  = $("<div>").addClass(who).appendTo(wrap);
-  $("<span>").html(who).addClass("who").appendTo(div);
-  $("<span>").html(msg).addClass("msg").appendTo(div);
-  $("#chat-screen-wp").scrollTop($("#chat-screen").height());
-}
-
-createOfferSDP();
-
-var sendMSG = function() {
-  var value = $("#msg").val();
-  if (value) {
-    dc.send(value);
-    addMSG(value, "me");
-    $("#msg").val('');
-  }
-}
-$("#start").click(function(){start();});
-$("#msg").keypress(function(e) {if(e.which == 13) {sendMSG()}});
-$("#send").click(sendMSG);
-</script>
+  
+  $("#capture").click(function () {
+    if (dc && dc.readyState === "open") {
+      console.log("Sending image, RTCDataChannel state:", dc.readyState);
+  
+      var video = document.getElementById("localVideo");
+      var canvas = document.createElement("canvas");
+      var ctx = canvas.getContext("2d");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  
+      var imageData = canvas.toDataURL("image/jpeg", 0.5); 
+  
+      function sendImage() {
+        if (dc.bufferedAmount > 65535) { 
+          console.warn("Buffer full, waiting...");
+          setTimeout(sendImage, 200);
+        } else {
+          try {
+            dc.send(imageData);
+            console.log("Image sent successfully!");
+          } catch (err) {
+            console.error("Failed to send image:", err);
+          }
+        }
+      }
+  
+      setTimeout(sendImage, 200); 
+    } else {
+      console.warn("Image not sent. DataChannel not open.");
+    }
+  });
+  </script>
+    
 </body>
 </html>

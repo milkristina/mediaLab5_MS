@@ -1,19 +1,137 @@
-body {line-height:1.8}
-h2 {font-size:20px;margin:0;padding:0 15px}
-h3 {font-size:16px;margin:0;padding:0 8px}
-textarea {display:block;width:100%;box-sizing:border-box;margin:3px;height:50px;font-size:11px;font-family:tahoma,arial,sans-serif}
-#chat-screen-wp {
-  position:relative;
-  height: 140px; margin: 0 3px; padding: 18px 5px 5px;
-  border:1px solid #dfdfdf;
-  overflow-y:scroll;
-  font-size: 12px;
+body {
+  margin: 0;
+  padding: 16px;
+  line-height: 1.6;
+  font-family: Arial, sans-serif;
+  color: #111;
 }
-#status {float:right; font-weight:normal;color:#9E9E9E}
-#ct     {text-align:right}
 
-div.wrap  {clear: both; padding:4px 8px}
-div.info  {position:absolute;right:0;top:0;padding:5px 18px;}
-div.other {color: #0060A0;float:left;padding:5px 18px;background:#FAFAFA;border-radius:8px;}
-div.me    {color: #EB088C;float:right;padding:5px 18px;background:#F4FAFF;border-radius:8px;}
-span.who  {display: inline-block;margin-right:5px;width:30px;text-align:center;display:none;}
+body.create-page { background: #b04a78; }  
+body.join-page   { background: #3c78b8; }  
+
+h2 {
+  font-size: 20px;
+  margin: 0 0 10px 0;
+  padding: 0;
+  color: #111;
+}
+
+h3 {
+  font-size: 14px;
+  margin: 14px 0 6px 0;
+  padding: 0;
+  color: #111;
+}
+
+textarea {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 0 10px 0;
+  height: 70px;
+  font-size: 12px;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  border: 0;               
+  outline: none;
+  background: #ffffff;
+  border-radius: 6px;
+  padding: 10px;
+}
+
+button {
+  border: 0;               
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+body.create-page button { background: #f6dbe7; color: #5a1233; }
+body.join-page   button { background: #d9ecff; color: #0b2a4a; }
+
+button:hover { filter: brightness(0.98); }
+button:active { transform: translateY(1px); }
+
+body.create-page #start  { background: #ffd1e3; color:#5a1233; }
+body.join-page   #create { background: #cfe8ff; color:#0b2a4a; }
+
+#localVideo,
+#receivedImage {
+  display: block;
+  margin: 10px auto 0 auto;
+  width: min(92%, 720px);
+  max-height: 420px;
+  object-fit: cover;
+  border: 0;                    
+  border-radius: 10px;
+  background: #fff;
+}
+
+#create-page-fix {}
+#capture {
+  display: block;
+  margin: 10px auto 0 auto;   
+}
+
+#status {
+  float: right;
+  font-weight: normal;
+  opacity: 0.75;
+}
+
+#chat {
+  margin-top: 8px;
+}
+
+#chat-screen-wp {
+  position: relative;
+  height: 160px;
+  margin: 0;
+  padding: 10px;
+  overflow-y: auto;
+
+  border: 0;                    
+  background: #ffffff;        
+  border-radius: 10px;
+}
+
+#ct {
+  margin-top: 8px;
+  text-align: right;
+}
+
+#msg {
+  width: calc(100% - 80px);
+  max-width: 520px;
+  padding: 8px 10px;
+  border: 0;                    
+  outline: none;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+#send {
+  margin-left: 8px;
+}
+
+div.wrap  { clear: both; padding: 4px 0; }
+
+div.info  { position: absolute; right: 0; top: 0; padding: 6px 10px; }
+
+div.other {
+  float: left;
+  padding: 7px 10px;
+  border-radius: 10px;
+  background: #ffffff;        
+  color: #0b2a4a;
+}
+
+div.me {
+  float: right;
+  padding: 7px 10px;
+  border-radius: 10px;
+  background: #ffffff;      
+  color: #5a1233;
+}
+
+span.who { display:none; }
