@@ -70,8 +70,12 @@
 
     <div id="video-container">
         <video playsinline autoplay></video>
-        <canvas></canvas>
-    </div>    
+         <canvas id="overlay"></canvas>
+   </div>
+
+<canvas id="snapshotCanvas" style="display:none;"></canvas>
+<img id="snapshotPreview" style="max-width:640px; margin-top:12px; display:none; border:4px solid #47173b; border-radius:6px;">
+<p id="snapStatus"></p> 
 
  <div class="controls">
     <label for="filter">Filter: </label>
@@ -91,10 +95,10 @@
 </div>
 
 <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
-<script src="js/main.js" async></script>
 <script src="js/tracking-min.js"></script>
 <script src="js/face-min.js"></script>
-
+<script src="js/main.js"></script>
 
 </body>
+
 </html>
